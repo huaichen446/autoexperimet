@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 set -eu
 
-PYTHONPATH=src pytest -q
+PYTHONPATH=src pytest

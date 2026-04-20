@@ -1,12 +1,25 @@
 # Agent Runtime
 
-Phase 0 baseline for an experiment-oriented agent runtime repository.
+Phase 1 model baseline for an experiment-oriented agent runtime repository.
 
-The goal of this phase is to establish a small, explicit collaboration and packaging foundation for later work. The repository intentionally includes only placeholder package structure, basic documentation, and smoke-level validation.
+The repository now includes typed Pydantic models for the object inventory, explicit overview-version boundaries, minimal architectural validators, and pytest coverage for the current schema baseline. The project is still intentionally narrow: Phase 1 defines model boundaries and validation only, not runtime business workflows.
 
-## Purpose
+## Current Status
 
-This project is intended to grow into an experiment-oriented agent runtime with clearly separated areas for models, execution, scheduling, acceptance, and migration. In Phase 0, those areas exist only as package boundaries so later phases can evolve without reworking repository setup.
+Implemented in Phase 1:
+
+- object inventory models across skeleton, runtime, execution-control, and archive/adoption layers
+- explicit version boundaries between overview objects and runtime-bound objects
+- minimal validators for required bindings, state-dependent required fields, and cross-object reference integrity
+- model-focused tests covering construction, invalid state rejection, and version-boundary enforcement
+
+Intentionally not implemented yet:
+
+- scheduler logic
+- execution engine logic
+- acceptance engine logic
+- migration engine logic
+- UI or product-facing rendering
 
 ## Setup
 
@@ -19,15 +32,19 @@ python -m pip install -e .[dev]
 
 ## Tests
 
-Use the repository-supported check command from the repository root:
+Repository baseline check:
 
 ```bash
 scripts/check.sh
 ```
 
-This is the canonical local Phase 0 check entrypoint. It runs the smoke test suite with the repository's expected import path configuration.
+Direct pytest invocation:
 
-If you need to run the underlying command directly in PowerShell, use:
+```bash
+PYTHONPATH=src pytest -q
+```
+
+PowerShell equivalent:
 
 ```powershell
 $env:PYTHONPATH="src"
@@ -42,26 +59,33 @@ pytest -q
 ├── README.md
 ├── docs/
 │   └── architecture/
-│       └── phase-0-baseline.md
+│       ├── phase-0-baseline.md
+│       └── phase-1-model-baseline.md
 ├── pyproject.toml
 ├── pytest.ini
 ├── scripts/
 │   └── check.sh
 ├── src/
 │   └── agent_runtime/
-│       ├── __init__.py
 │       ├── acceptance/
 │       ├── common/
 │       ├── execution/
 │       ├── migration/
 │       ├── models/
+│       │   ├── adoption.py
+│       │   ├── common.py
+│       │   ├── execution.py
+│       │   ├── inventory.py
+│       │   ├── runtime.py
+│       │   └── skeleton.py
 │       └── scheduling/
 └── tests/
+    ├── test_models.py
     └── test_smoke.py
 ```
 
-## Phase 0 Notes
+## Phase 1 Notes
 
-- Includes package layout, packaging baseline, repository instructions, docs scaffolding, and smoke tests.
-- Does not include scheduler behavior, migration behavior, runtime orchestration, or product-facing UI.
-- Keeps implementation intentionally minimal to avoid speculative abstractions.
+- `src/agent_runtime/models/` is the current source of truth for the repository's schema baseline.
+- `ObjectInventory` validates cross-layer references without introducing scheduler, execution, acceptance, or migration behavior.
+- The baseline is deliberately conservative so later phases can build on stable model boundaries instead of reworking repository scaffolding.

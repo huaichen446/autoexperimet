@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agent-runtime"
 version = "0.1.0"
-description = "Phase 0 baseline for an experiment-oriented agent runtime."
+description = "Phase 1 model baseline for an experiment-oriented agent runtime."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
