@@ -1,59 +1,41 @@
 # AGENTS.md
 
-## Project
-This repository implements an experiment-oriented agent runtime.
+## Repository Status
+- Phase 0 completed
+- Phase 1 completed
+- Phase 2 completed
 
-## Non-goals for the current baseline
-- Do not redesign the overall architecture.
-- Do not implement scheduler logic.
-- Do not implement migration logic.
-- Do not implement execution engine logic.
-- Do not implement acceptance engine logic.
-- Do not implement UI or product-facing rendering.
-- Do not add multi-agent workflows.
+## Current Focus
+- Phase 2 is complete and locked.
+- Work in later phases may consume Phase 2 outputs but must not redesign the Phase 2 protocol truth model.
 
-## Required stack
-- Python
-- Pydantic
-- pytest
+## Locked Phase 2 Protocol Rules
+1. `Action` is a real executable runtime object.
+2. `ActionRecord` is a single-attempt mutable record.
+3. One action cannot have multiple active attempts at the same time.
+4. Execution truth comes from `ActionRecord`, not from `Action` mirror fields.
+5. `Action.status`, `Action.retry_count`, `Action.current_attempt_index`, `Action.last_failure_reason`, `Action.last_blocked_reason`, and `Action.last_record_id` are mirror-only cache fields.
+6. `retry_count` truth comes from valid finalized `ActionRecord` aggregation.
+7. Waiting resume continues the same attempt for `external_tool_not_ready`, `human_input_missing`, and `external_resource_not_ready`.
+8. `selected -> abandoned` counts as a real attempt but not as a retry.
+9. `skipped` belongs only to `Action` and does not create an `ActionRecord`.
+10. Finalized `ActionRecord` business-state mutation is forbidden.
+11. Late async results go to `LateArrivalRecord`, not back into the finalized `ActionRecord`.
 
-## Current baseline goal
-Preserve and extend the Phase 1 model baseline only:
-- object inventory models
-- explicit version boundaries
-- minimal architectural validators
-- model and smoke tests
-- repository instructions and baseline docs
+## Later-Phase Boundary
+- Later phases may schedule, consume, summarize, or react to Phase 2 protocol outputs.
+- Later phases must not rewrite the attempt truth source.
+- Later phases must not rewrite the retry truth source.
+- Later phases must not rewrite waiting-resume ownership.
+- Later phases must not rewrite finalized immutability.
+- Later phases must not rewrite late-arrival routing.
 
-## Constraints
-- Keep code minimal and typed.
-- Prefer small, explicit files.
-- Do not add speculative abstractions.
-- Do not implement business logic beyond schema-level validation.
-- Keep skeleton, runtime, execution-control, and archive/adoption objects separate.
-- Preserve explicit overview-version boundaries and binding references.
-- Make the repository ready for later phases:
-  - models
-  - execution
-  - scheduling
-  - acceptance
-  - migration
-
-## Deliverables
-- pyproject.toml
-- pytest.ini
-- README.md
-- AGENTS.md
-- docs/architecture/phase-0-baseline.md
-- docs/architecture/phase-1-model-baseline.md
-- src/agent_runtime/models/... schema layout
-- src/agent_runtime/... package layout
-- tests/test_models.py
-- tests/test_smoke.py
-- scripts/check.sh
-
-## Definition of done
-- `pytest -q` passes
-- package imports succeed
-- README explains setup, scope, and test commands
-- architecture baseline docs exist
+## Still Out Of Scope Here
+- Scheduler implementation
+- Acceptance engine
+- Adoption engine
+- Migration engine
+- UI / rendering
+- Persistence layer
+- API layer
+- Multi-agent workflows

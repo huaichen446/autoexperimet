@@ -16,7 +16,16 @@ from .common import (
 )
 from .execution import Action, DecisionItem, DoneCheck, ExecutionGuide
 from .inventory import ObjectInventory
-from .runtime import ActionRecord, Module, Phase
+from .runtime import (
+    ActionRecord,
+    BlockedReason,
+    ExternalCorrelationKey,
+    FailureReason,
+    Module,
+    Phase,
+    RequiredInput,
+    WaitingTarget,
+)
 from .skeleton import ExperimentOverview, ModuleOverview, PhaseOverview
 
 __all__ = [
@@ -28,6 +37,7 @@ __all__ = [
     "ActionType",
     "AdoptedDesignItem",
     "AuditStatus",
+    "BlockedReason",
     "DecisionItem",
     "DecisionStatus",
     "DecompositionFeasibility",
@@ -36,6 +46,8 @@ __all__ = [
     "ExecutionGuide",
     "ExperimentMainDoc",
     "ExperimentOverview",
+    "ExternalCorrelationKey",
+    "FailureReason",
     "GuideStatus",
     "Module",
     "ModuleOverview",
@@ -44,4 +56,6 @@ __all__ = [
     "Phase",
     "PhaseStatus",
     "PhaseOverview",
+    "RequiredInput",
+    "WaitingTarget",
 ]

@@ -1,4 +1,4 @@
-"""Shared model helpers and enums for Phase 1 schemas."""
+"""Shared model helpers and enums for typed runtime schemas."""
 
 from __future__ import annotations
 
@@ -50,12 +50,12 @@ class ActionType(StrEnum):
 
 
 class ActionRecordStatus(StrEnum):
-    PLANNED = "planned"
+    SELECTED = "selected"
     RUNNING = "running"
-    SUCCEEDED = "succeeded"
-    FAILED = "failed"
     BLOCKED = "blocked"
-    CANCELLED = "cancelled"
+    FAILED = "failed"
+    DONE = "done"
+    ABANDONED = "abandoned"
 
 
 class GuideStatus(StrEnum):
@@ -82,9 +82,10 @@ class ActionStatus(StrEnum):
     PENDING = "pending"
     SELECTED = "selected"
     RUNNING = "running"
-    DONE = "done"
-    FAILED = "failed"
     BLOCKED = "blocked"
+    FAILED = "failed"
+    DONE = "done"
+    ABANDONED = "abandoned"
     SKIPPED = "skipped"
 
 

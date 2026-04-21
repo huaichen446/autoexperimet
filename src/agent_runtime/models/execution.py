@@ -13,6 +13,7 @@ from .common import (
     GuideStatus,
     ModelBase,
 )
+from .runtime import BlockedReason, FailureReason, RequiredInput
 
 
 class DecisionItem(ModelBase):
@@ -56,25 +57,55 @@ class DoneCheck(ModelBase):
 
 
 class Action(ModelBase):
-    """A guide-scoped action definition.
-
-    The ``status`` field is a mirror/cache field for the guide's current view of
-    action progress. It is intentionally schema-only in Phase 1 and does not
-    implement execution behavior.
-    """
-
+    """A guide-scoped executable action with mirror-only runtime cache fields."""
+    
+    # identity / binding
     action_id: str
+    experiment_id: str
+    module_id: str
+    phase_id: str
+    guide_id: str
+    overview_version: int = Field(ge=1)
+    
+    # guide-provided planning fields
     title: str
     action_type: ActionType
-    executor_hint: ActionExecutorHint
+    executor_type: ActionExecutorHint
     instruction: str
     expected_output: str
-    status: ActionStatus = ActionStatus.PENDING
+    required_inputs: list[RequiredInput] = Field(default_factory=list)
+    decision_item_refs: list[str] = Field(default_factory=list)
+    done_check_refs: list[str] = Field(default_factory=list)
+    expected_output_refs: list[str] = Field(default_factory=list)
+    retry_policy: str
+    max_retry: int = Field(ge=0)
+    priority: int = 0
+    declared_order: int = Field(ge=0)
+
+    # runtime-materialized mirror-only fields
+    status: ActionStatus | None = None
+    current_attempt_index: int | None = Field(default=None, ge=1)
+    retry_count: int | None = Field(default=None, ge=0)
+    last_failure_reason: FailureReason | None = None
+    last_blocked_reason: BlockedReason | None = None
+    last_record_id: str | None = None
 
     @model_validator(mode="after")
     def validate_state(self) -> "Action":
         if not self.action_id:
             raise ValueError("action_id must be present")
+        if not self.experiment_id:
+            raise ValueError("experiment_id must be present")
+        if not self.module_id:
+            raise ValueError("module_id must be present")
+        if not self.phase_id:
+            raise ValueError("phase_id must be present")
+        if not self.guide_id:
+            raise ValueError("guide_id must be present")
+        if self.retry_policy not in {"fixed", "none", "policy_override"}:
+            raise ValueError("retry_policy must be fixed, none, or policy_override")
+        for required_input in self.required_inputs:
+            required_input.model_validate(required_input.model_dump())
         return self
 
 
