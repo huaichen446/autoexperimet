@@ -115,3 +115,48 @@ direct escalation > revise guide > pause waiting > keep current selection > swit
 - explicit non-executable branches are returned instead of implicit fallthrough
 - waiting / revise / escalate branches are covered by pytest
 - no acceptance engine or migration engine is introduced
+
+
+## Phase 4 goal
+Implement the acceptance and promotion mechanism only.
+
+## In scope for Phase 4
+- DecisionItem model completion and validation
+- DoneCheck model completion and validation
+- phase/module/experiment gate evaluators
+- adopted-result promotion rules
+- fixed acceptance failure routing
+- protocol-focused tests for acceptance and promotion
+
+## Out of scope for Phase 4
+- scheduler redesign
+- execution protocol redesign
+- migration engine
+- UI / rendering
+- persistence/database
+- API layer
+- multi-agent workflows
+- product-facing document generation
+
+## Hard constraints
+1. Do not redesign scheduler, execution, or migration layers.
+2. Keep acceptance logic separate from scheduling logic.
+3. Keep promotion logic separate from rendering/output formatting.
+4. DecisionItem and DoneCheck must remain structured truth objects.
+5. Completion gates must be deterministic and testable.
+6. Acceptance failure must resolve only to:
+   - keep_current_state
+   - revise_guide
+   - pause_acceptance
+   - escalate_to_overview_revision
+7. Promotion to adopted results must require gate closure plus evidence and acceptance basis.
+8. Results derived from waiting / blocked / failed execution must not be promoted.
+9. Old adopted results must never be overwritten in place when superseded by a new overview version.
+
+## Phase 4 definition of done
+- DecisionItem protocol exists and is validated
+- DoneCheck protocol exists and is validated
+- phase/module/experiment gate evaluators exist
+- adopted-result promotion rules exist
+- pytest covers valid, invalid, blocked, revise, pause, escalate, and adopted paths
+- no migration engine or UI/rendering logic is introduced

@@ -121,11 +121,11 @@ class ObjectInventory(ModelBase):
             if self.main_doc.experiment_id != overview.experiment_id:
                 raise ValueError("main_doc must bind to the inventory experiment_id")
             for item in self.main_doc.adopted_design_items:
-                if item.source_phase_id not in phases_by_id:
+                if item.phase_id is not None and item.phase_id not in phases_by_id:
                     raise ValueError("adopted design items must reference an existing runtime phase")
-                if item.source_guide_id is not None and item.source_guide_id not in guides_by_id:
+                if item.guide_id is not None and item.guide_id not in guides_by_id:
                     raise ValueError("adopted design items must reference an existing execution guide")
-                if item.source_overview_version != overview.version:
+                if item.overview_version != overview.version:
                     raise ValueError("adopted design items must preserve the experiment overview version boundary")
 
         return self

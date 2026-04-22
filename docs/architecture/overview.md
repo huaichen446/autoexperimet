@@ -2,7 +2,7 @@
 
 ## Current Scope
 
-The repository currently implements the baseline through Phase 3 for a skeleton-first experiment agent runtime.
+The repository currently implements the baseline through Phase 4 for a skeleton-first experiment agent runtime.
 
 Completed phases:
 
@@ -10,6 +10,7 @@ Completed phases:
 - Phase 1: object inventory and version boundaries
 - Phase 2: `Action` / `ActionRecord` execution protocol
 - Phase 3: runtime scheduling core
+- Phase 4: acceptance and promotion layer
 
 The current default model is:
 
@@ -61,6 +62,28 @@ The scheduling layer resolves the current execution point in a fixed order:
 
 It does not redesign execution truth, acceptance, or migration behavior. It returns explicit outcomes when the runtime state cannot continue directly.
 
+### Acceptance Layer
+
+The acceptance layer evaluates deterministic completion and promotion state without redefining scheduler or execution truth.
+
+Implemented Phase 4 objects and helpers:
+
+- `DecisionItem`
+- `DoneCheck`
+- `AdoptedDesignItem`
+- `evaluate_phase_gate(...)`
+- `evaluate_module_gate(...)`
+- `evaluate_experiment_gate(...)`
+- `evaluate_adoption_candidate(...)`
+
+At a high level:
+
+- `DecisionItem` represents a required decision that must close explicitly for a scope
+- `DoneCheck` is the executable unit of done-criteria evaluation
+- `AdoptedDesignItem` is a promoted result that is allowed to survive beyond execution-layer outputs
+- gate evaluation stays separate from scheduler selection logic
+- promotion requires closed gates, valid bindings, evidence, acceptance basis, and non-temporary source outputs
+
 ## What Each Completed Phase Delivered
 
 ### Phase 0
@@ -93,6 +116,18 @@ It does not redesign execution truth, acceptance, or migration behavior. It retu
 - current action resolution with explicit waiting, revise, escalate, continue, retry, and abandon-and-switch outcomes
 - scheduler tests for explicit no-fallthrough behavior
 
+### Phase 4
+
+- acceptance models for structured decision closure and done-check evaluation
+- explicit phase, module, and experiment gate evaluators
+- fixed acceptance routing outcomes:
+  - `keep_current_state`
+  - `revise_guide`
+  - `pause_acceptance`
+  - `escalate_to_overview_revision`
+- adopted-result promotion checks for scope closure, evidence, acceptance basis, and source compatibility
+- supersede behavior that preserves prior adopted items instead of silently rewriting them
+
 ## Current Boundaries Between Layers
 
 - skeleton objects define structure and version boundaries only
@@ -100,13 +135,13 @@ It does not redesign execution truth, acceptance, or migration behavior. It retu
 - `ExecutionGuide` controls the current round within one phase
 - `ActionRecord` remains the source of truth for action execution state
 - scheduler logic consumes runtime/execution state but does not rewrite protocol truth
-- acceptance and migration boundaries remain separate and are not implemented here
+- acceptance consumes runtime/execution outputs but does not rewrite scheduler or execution truth
+- migration remains a separate unimplemented boundary
 
 ## Pending Work For Later Phases
 
-Phase 4 and Phase 5 are still pending. At repository level, the major unimplemented areas remain:
+Later phases are still pending. At repository level, the major unimplemented areas remain:
 
-- acceptance / adoption engine
 - migration engine
 - non-linear phase topology
 - persistence / database

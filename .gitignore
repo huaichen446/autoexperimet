@@ -3,3 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 .python-version
+dist/
+build/
+.coverage
+.idea/
+.vscode/
+__pycache__/

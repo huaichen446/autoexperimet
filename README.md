@@ -10,17 +10,19 @@ This repository defines a layered runtime for experiment-oriented agent work. Th
 - runtime objects bind execution state back to the current overview version
 - execution protocol objects define action-attempt truth through `ActionRecord`
 - scheduling logic resolves the current module, phase, guide, and action without silently guessing
+- acceptance logic evaluates deterministic completion gates and adoption/promotion boundaries without rewriting execution truth
 
 The codebase uses Python, Pydantic, and pytest only.
 
 ## Current Implementation Status
 
-Implemented through Phase 3:
+Implemented through Phase 4:
 
 - Phase 0 baseline
 - Phase 1 data models and version boundaries
 - Phase 2 `Action` / `ActionRecord` execution protocol
 - Phase 3 scheduling core
+- Phase 4 acceptance and promotion layer
 
 What is currently implemented:
 
@@ -30,11 +32,21 @@ What is currently implemented:
 - Phase 2 action-attempt protocol helpers, mirror repair, and late-arrival routing boundary
 - Phase 3 scheduling functions for module validation, phase validation, guide resolution, and action resolution
 - explicit scheduler outcomes for continue, retry, abandon-and-switch, waiting pause, revise-guide, and escalate paths
-- pytest coverage for models, execution protocol, and scheduler behavior
+- Phase 4 acceptance schemas for `DecisionItem`, `DoneCheck`, and `AdoptedDesignItem`
+- phase, module, and experiment gate evaluators
+- adoption / promotion validation for accepted design items
+- pytest coverage for models, execution protocol, scheduler behavior, and acceptance behavior
+
+## Phase Summary
+
+- Phase 0: repository baseline, package structure, smoke tests, and collaboration/check-script setup
+- Phase 1: Pydantic model baseline, inventory graph validation, and overview-version boundaries
+- Phase 2: execution protocol truth model centered on `ActionRecord`, retry aggregation, immutability, and waiting-resume ownership
+- Phase 3: deterministic scheduling core for module, phase, guide, and action resolution
+- Phase 4: acceptance and promotion layer with decision closure, done-check evaluation, gate routing, and adopted-result promotion rules
 
 ## What Is Not Implemented Yet
 
-- acceptance / adoption engine
 - migration engine
 - non-linear phase topology
 - UI / rendering
@@ -65,6 +77,12 @@ Run all tests:
 pytest -q
 ```
 
+Run only the Phase 4 acceptance tests:
+
+```bash
+pytest tests/acceptance/test_phase4_acceptance.py -q
+```
+
 Run the Phase 3 scheduler tests:
 
 ```bash
@@ -86,11 +104,13 @@ scripts/check.sh
 - `src/agent_runtime/scheduling`
   Phase 3 scheduling core for module, phase, guide, and action resolution.
 - `src/agent_runtime/acceptance`
-  Reserved package boundary for later acceptance/adoption work.
+  Phase 4 acceptance and promotion helpers, including gate evaluators, routing helpers, and adoption validation.
 - `src/agent_runtime/migration`
   Reserved package boundary for later migration work.
 - `docs`
   Architecture and phase baseline documentation.
+- `tests/acceptance`
+  Phase 4 acceptance, routing, and promotion coverage.
 
 ## Current Boundaries
 
@@ -100,4 +120,5 @@ scripts/check.sh
 - `Action` comes from the current valid guide.
 - `ActionRecord` remains the execution truth source.
 - scheduler resolution follows `module -> phase -> guide -> action`.
-- acceptance, migration, persistence, API, UI, and non-linear topology are still out of scope.
+- acceptance uses explicit phase/module/experiment gates and does not rewrite scheduler or execution semantics.
+- migration, persistence, API, UI, and non-linear topology are still out of scope.

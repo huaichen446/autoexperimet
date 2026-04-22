@@ -67,8 +67,10 @@ class GuideStatus(StrEnum):
 
 class DecisionStatus(StrEnum):
     OPEN = "open"
-    DECIDED = "decided"
+    PROPOSED = "proposed"
     BLOCKED = "blocked"
+    DECIDED = "decided"
+    REJECTED = "rejected"
     OBSOLETE = "obsolete"
 
 
@@ -76,6 +78,13 @@ class DoneCheckStatus(StrEnum):
     UNMET = "unmet"
     MET = "met"
     BLOCKED = "blocked"
+    INVALID = "invalid"
+
+
+class AdoptionStatus(StrEnum):
+    PROPOSED = "proposed"
+    ADOPTED = "adopted"
+    SUPERSEDED = "superseded"
 
 
 class ActionStatus(StrEnum):

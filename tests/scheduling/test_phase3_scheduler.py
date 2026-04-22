@@ -285,9 +285,43 @@ def build_guide(*, guide_id: str = "guide-1", guide_version: int = 1, created_at
         guide_version=guide_version,
         status=GuideStatus.ACTIVE,
         phase_problem="Need the next runtime action.",
-        decision_items=[DecisionItem(decision_id="decision-1", question="Which path?", status="open")],
+        decision_items=[
+            DecisionItem(
+                decision_id="decision-1",
+                experiment_id="exp-1",
+                module_id="module-1",
+                phase_id="phase-1",
+                guide_id=guide_id,
+                overview_version=1,
+                title="Which path?",
+                decision_scope="phase",
+                decision_type="path_selection",
+                status="open",
+                required_for_phase_done=True,
+                created_at="2026-04-22T09:05:00Z",
+                updated_at="2026-04-22T09:05:00Z",
+            )
+        ],
         actions=actions,
-        done_criteria=[DoneCheck(check_id="check-1", description="Evidence exists.", status="unmet")],
+        done_criteria=[
+            DoneCheck(
+                check_id="check-1",
+                experiment_id="exp-1",
+                module_id="module-1",
+                phase_id="phase-1",
+                guide_id=guide_id,
+                overview_version=1,
+                check_scope="phase",
+                title="Evidence exists.",
+                check_type="evidence_bound",
+                status="unmet",
+                required=True,
+                verifier_type="evidence_based",
+                verifier_config={"source": "guide"},
+                created_at="2026-04-22T09:05:00Z",
+                updated_at="2026-04-22T09:05:00Z",
+            )
+        ],
         blockers=[],
         fallback_rule="Stay inside the phase boundary.",
         notes=[],
@@ -536,7 +570,23 @@ def test_action_selection_tie_breakers() -> None:
         build_action("action-b", decision_refs=["decision-1", "decision-2"], done_refs=[], priority=1, declared_order=1),
     ]
     guide = build_guide(actions=actions)
-    guide.decision_items.append(DecisionItem(decision_id="decision-2", question="Second?", status="open"))
+    guide.decision_items.append(
+        DecisionItem(
+            decision_id="decision-2",
+            experiment_id="exp-1",
+            module_id="module-1",
+            phase_id="phase-1",
+            guide_id="guide-1",
+            overview_version=1,
+            title="Second?",
+            decision_scope="phase",
+            decision_type="path_selection",
+            status="open",
+            required_for_phase_done=True,
+            created_at="2026-04-22T09:05:00Z",
+            updated_at="2026-04-22T09:05:00Z",
+        )
+    )
     state = build_state(guides=[guide])
     assert select_action_from_guide(guide, state).action_id == "action-b"
 

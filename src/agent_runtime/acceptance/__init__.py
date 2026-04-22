@@ -1,1 +1,62 @@
-"""Acceptance package placeholder."""
+"""Phase 4 acceptance and promotion helpers."""
+
+from .adoption import evaluate_adoption_candidate, supersede_adopted_item
+from .gates import evaluate_experiment_gate, evaluate_module_gate, evaluate_phase_gate
+from .result_types import (
+    AcceptanceRoute,
+    AdoptionEvaluation,
+    AdoptionEvaluationKind,
+    ExperimentGateKind,
+    ExperimentGateResult,
+    ModuleGateKind,
+    ModuleGateResult,
+    PhaseGateKind,
+    PhaseGateResult,
+)
+from .validators import (
+    all_required_phase_checks_met,
+    all_required_phase_decisions_decided,
+    candidate_has_acceptance_basis,
+    candidate_has_content_snapshot,
+    candidate_has_evidence,
+    candidate_is_temporary_or_blocked,
+    decision_invalid_reason,
+    done_check_invalid_reason,
+    has_illegal_decision_transition,
+    has_invalid_required_decision,
+    has_invalid_required_done_check,
+    phase_state_after_satisfied,
+    resolve_acceptance_failure,
+    transition_decision_item,
+)
+
+__all__ = [
+    "AcceptanceRoute",
+    "AdoptionEvaluation",
+    "AdoptionEvaluationKind",
+    "ExperimentGateKind",
+    "ExperimentGateResult",
+    "ModuleGateKind",
+    "ModuleGateResult",
+    "PhaseGateKind",
+    "PhaseGateResult",
+    "all_required_phase_checks_met",
+    "all_required_phase_decisions_decided",
+    "candidate_has_acceptance_basis",
+    "candidate_has_content_snapshot",
+    "candidate_has_evidence",
+    "candidate_is_temporary_or_blocked",
+    "decision_invalid_reason",
+    "done_check_invalid_reason",
+    "evaluate_adoption_candidate",
+    "evaluate_experiment_gate",
+    "evaluate_module_gate",
+    "evaluate_phase_gate",
+    "has_illegal_decision_transition",
+    "has_invalid_required_decision",
+    "has_invalid_required_done_check",
+    "phase_state_after_satisfied",
+    "resolve_acceptance_failure",
+    "supersede_adopted_item",
+    "transition_decision_item",
+]
