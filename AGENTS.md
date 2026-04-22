@@ -160,3 +160,69 @@ Implement the acceptance and promotion mechanism only.
 - adopted-result promotion rules exist
 - pytest covers valid, invalid, blocked, revise, pause, escalate, and adopted paths
 - no migration engine or UI/rendering logic is introduced
+
+## Phase 5 goal
+Implement the skeleton-level rollback and version migration protocol only.
+
+## In scope for Phase 5
+- overview version migration objects
+- module / phase migration mapping objects
+- migration planning and validation
+- freeze / obsolete / inherit rules
+- handling of the five structural mapping classes:
+  - unchanged
+  - split
+  - merged
+  - removed
+  - reordered
+- historical ActionRecord relinking
+- unique resume-point resolution
+- migration result routing:
+  - auto_resumed
+  - pause_migration
+  - escalate_migration
+- protocol-focused tests for migration behavior
+
+## Out of scope for Phase 5
+- decomposition prompt
+- audit prompt
+- scheduler redesign
+- execution protocol redesign
+- acceptance/adoption redesign
+- UI / rendering
+- persistence/database
+- API layer
+- multi-agent workflows
+- product-facing document generation
+
+## Hard constraints
+1. Do not redesign scheduler, execution, acceptance, or adoption layers.
+2. Do not mutate old overview objects in place.
+3. Do not silently carry active execution across overview versions.
+4. Freeze old active execution objects before any migration mapping is applied.
+5. Do not rewrite historical ActionRecord business truth.
+6. Historical ActionRecord objects may only be relinked/annotated for migration context.
+7. Old ExecutionGuide objects must not remain active after migration starts.
+8. New ExecutionGuide objects may be created only after a unique resume point is resolved.
+9. Resume point must resolve uniquely to:
+   - resume_module_id
+   - resume_phase_id
+10. If a unique resume point cannot be derived, return an explicit migration result.
+11. Keep migration logic deterministic and testable.
+12. Do not implement a workflow/orchestration framework.
+
+## Required migration result vocabulary
+Use explicit migration results only:
+- auto_resumed
+- pause_migration
+- escalate_migration
+
+## Phase 5 definition of done
+- migration protocol objects exist
+- old/new overview version boundaries are explicit
+- five mapping classes are handled explicitly
+- old active guides/attempts are frozen before migration
+- historical ActionRecords are preserved without business truth rewrite
+- resume point resolution is deterministic
+- pytest covers success, pause, and escalate migration paths
+- no scheduler redesign or execution redesign is introduced

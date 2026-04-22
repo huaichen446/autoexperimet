@@ -31,6 +31,27 @@ def validate_finalized_immutability(record: ActionRecord, updates: dict) -> None
         raise ValueError("finalized action records cannot be business-state mutated")
 
 
+def validate_migration_frozen_immutability(record: ActionRecord, updates: dict) -> None:
+    """Reject business-state mutation after a record has been frozen for migration."""
+
+    if record.frozen_by_migration_id is None:
+        return
+
+    allowed_after_freeze = {
+        "record_revision",
+        "mutation_reason_code",
+        "mutation_log_required",
+        "frozen_by_migration_id",
+        "migrated_to_overview_version",
+        "migrated_resume_module_id",
+        "migrated_resume_phase_id",
+    }
+    attempted = {key for key, value in updates.items() if getattr(record, key) != value}
+    disallowed = attempted - allowed_after_freeze
+    if disallowed:
+        raise ValueError("migration-frozen action records cannot be business-state mutated")
+
+
 def latest_valid_record_for_action(records: list[ActionRecord], action_id: str) -> ActionRecord | None:
     """Return the latest valid record by attempt index for one action."""
 

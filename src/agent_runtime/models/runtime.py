@@ -273,6 +273,10 @@ class ActionRecord(ModelBase):
     record_revision: int = Field(ge=1)
     mutation_reason_code: str
     mutation_log_required: bool
+    frozen_by_migration_id: str | None = None
+    migrated_to_overview_version: int | None = Field(default=None, ge=1)
+    migrated_resume_module_id: str | None = None
+    migrated_resume_phase_id: str | None = None
 
     @model_validator(mode="after")
     def validate_single_attempt_state(self) -> "ActionRecord":
@@ -338,4 +342,6 @@ class ActionRecord(ModelBase):
             raise ValueError("active action records cannot include terminal_at")
         if self.attempt_status == ActionRecordStatus.ABANDONED and self.phase_writeback_hint != "notes_only":
             raise ValueError("abandoned action records must use notes_only phase_writeback_hint")
+        if self.migrated_to_overview_version is not None and self.frozen_by_migration_id is None:
+            raise ValueError("migrated action records must include frozen_by_migration_id")
         return self

@@ -16,13 +16,14 @@ The codebase uses Python, Pydantic, and pytest only.
 
 ## Current Implementation Status
 
-Implemented through Phase 4:
+Implemented through Phase 5:
 
 - Phase 0 baseline
 - Phase 1 data models and version boundaries
 - Phase 2 `Action` / `ActionRecord` execution protocol
 - Phase 3 scheduling core
 - Phase 4 acceptance and promotion layer
+- Phase 5 migration and resume routing layer
 
 What is currently implemented:
 
@@ -35,7 +36,8 @@ What is currently implemented:
 - Phase 4 acceptance schemas for `DecisionItem`, `DoneCheck`, and `AdoptedDesignItem`
 - phase, module, and experiment gate evaluators
 - adoption / promotion validation for accepted design items
-- pytest coverage for models, execution protocol, scheduler behavior, and acceptance behavior
+- Phase 5 migration planning, freeze-before-mapping, mapping-class handling, resume routing, and historical record relinking
+- pytest coverage for models, execution protocol, scheduler behavior, acceptance behavior, and migration behavior
 
 ## Phase Summary
 
@@ -44,10 +46,10 @@ What is currently implemented:
 - Phase 2: execution protocol truth model centered on `ActionRecord`, retry aggregation, immutability, and waiting-resume ownership
 - Phase 3: deterministic scheduling core for module, phase, guide, and action resolution
 - Phase 4: acceptance and promotion layer with decision closure, done-check evaluation, gate routing, and adopted-result promotion rules
+- Phase 5: overview-version migration baseline with freeze-before-mapping, structural mapping handling, resume-point resolution, and explicit migration routing
 
 ## What Is Not Implemented Yet
 
-- migration engine
 - non-linear phase topology
 - UI / rendering
 - persistence / database
@@ -89,6 +91,12 @@ Run the Phase 3 scheduler tests:
 pytest tests/scheduling/test_phase3_scheduler.py -q
 ```
 
+Run the Phase 5 migration tests:
+
+```bash
+pytest tests/migration/test_phase5_migration.py -q
+```
+
 Optional repo smoke/check script:
 
 ```bash
@@ -106,11 +114,13 @@ scripts/check.sh
 - `src/agent_runtime/acceptance`
   Phase 4 acceptance and promotion helpers, including gate evaluators, routing helpers, and adoption validation.
 - `src/agent_runtime/migration`
-  Reserved package boundary for later migration work.
+  Phase 5 migration helpers for overview-version transitions, mapping interpretation, freeze-before-mapping, and resume routing.
 - `docs`
   Architecture and phase baseline documentation.
 - `tests/acceptance`
   Phase 4 acceptance, routing, and promotion coverage.
+- `tests/migration`
+  Phase 5 migration coverage for mapping classes, resume routing, and historical-record safety.
 
 ## Current Boundaries
 
@@ -121,4 +131,5 @@ scripts/check.sh
 - `ActionRecord` remains the execution truth source.
 - scheduler resolution follows `module -> phase -> guide -> action`.
 - acceptance uses explicit phase/module/experiment gates and does not rewrite scheduler or execution semantics.
-- migration, persistence, API, UI, and non-linear topology are still out of scope.
+- migration is implemented as a separate overview-transition layer and does not rewrite execution business truth.
+- persistence, API, UI, and non-linear topology are still out of scope.

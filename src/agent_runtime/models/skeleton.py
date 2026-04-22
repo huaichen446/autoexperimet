@@ -102,6 +102,7 @@ class ExperimentOverview(ModelBase):
     audit_passed_at: str | None = None
 
     change_summary: str | None = None
+    structural_change_summary: list[str] = Field(default_factory=list)
     created_at: str
     superseded_by_version: int | None = Field(default=None, ge=1)
 

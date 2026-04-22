@@ -17,6 +17,7 @@ from agent_runtime.models import (
 from .validators import (
     ensure_single_active_attempt,
     validate_finalized_immutability,
+    validate_migration_frozen_immutability,
     validate_terminal_requirements,
 )
 
@@ -315,6 +316,7 @@ def _transition_record(
     **updates,
 ) -> ActionRecord:
     validate_finalized_immutability(record, updates)
+    validate_migration_frozen_immutability(record, updates)
     if to_status not in VALID_TRANSITIONS.get(record.attempt_status, set()):
         raise ValueError("invalid action attempt transition")
     return _mutate_record(
@@ -330,6 +332,7 @@ def _transition_record(
 
 def _mutate_record(record: ActionRecord, updates: dict) -> ActionRecord:
     validate_finalized_immutability(record, updates)
+    validate_migration_frozen_immutability(record, updates)
     candidate = record.model_copy(update=updates)
     validated = validate_terminal_requirements(ActionRecord.model_validate(candidate.model_dump()))
     for field_name in ActionRecord.model_fields:

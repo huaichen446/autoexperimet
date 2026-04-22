@@ -2,7 +2,7 @@
 
 ## Current Scope
 
-The repository currently implements the baseline through Phase 4 for a skeleton-first experiment agent runtime.
+The repository currently implements the baseline through Phase 5 for a skeleton-first experiment agent runtime.
 
 Completed phases:
 
@@ -11,6 +11,7 @@ Completed phases:
 - Phase 2: `Action` / `ActionRecord` execution protocol
 - Phase 3: runtime scheduling core
 - Phase 4: acceptance and promotion layer
+- Phase 5: overview-version migration and resume routing
 
 The current default model is:
 
@@ -84,6 +85,26 @@ At a high level:
 - gate evaluation stays separate from scheduler selection logic
 - promotion requires closed gates, valid bindings, evidence, acceptance basis, and non-temporary source outputs
 
+### Migration Layer
+
+The migration layer handles deterministic overview-version transitions without redesigning execution, scheduling, or acceptance truth.
+
+Implemented Phase 5 objects and helpers:
+
+- `OverviewMigration`
+- `ModuleMigrationItem`
+- `PhaseMigrationItem`
+- `migrate_overview(...)`
+- freeze and relink helpers for guides and historical action records
+
+At a high level:
+
+- migration works across explicit old/new overview boundaries
+- active guides and active attempts are frozen before mapping is interpreted
+- structural changes are handled through explicit mapping classes
+- resume-point resolution must derive a unique module and phase or return a typed pause/escalate outcome
+- historical `ActionRecord` business truth remains immutable during relinking
+
 ## What Each Completed Phase Delivered
 
 ### Phase 0
@@ -128,6 +149,15 @@ At a high level:
 - adopted-result promotion checks for scope closure, evidence, acceptance basis, and source compatibility
 - supersede behavior that preserves prior adopted items instead of silently rewriting them
 
+### Phase 5
+
+- migration objects for old/new overview transitions
+- freeze-before-mapping behavior for active guides and active attempts
+- explicit handling of `unchanged`, `split`, `merged`, `removed`, and `reordered` mapping classes
+- deterministic resume module / resume phase resolution for the default linear model
+- explicit migration outcomes for auto-resume, pause, and escalate paths
+- historical `ActionRecord` relinking that adds migration context without rewriting business-truth fields
+
 ## Current Boundaries Between Layers
 
 - skeleton objects define structure and version boundaries only
@@ -136,13 +166,12 @@ At a high level:
 - `ActionRecord` remains the source of truth for action execution state
 - scheduler logic consumes runtime/execution state but does not rewrite protocol truth
 - acceptance consumes runtime/execution outputs but does not rewrite scheduler or execution truth
-- migration remains a separate unimplemented boundary
+- migration consumes runtime history and overview mappings without rewriting execution business truth
 
 ## Pending Work For Later Phases
 
 Later phases are still pending. At repository level, the major unimplemented areas remain:
 
-- migration engine
 - non-linear phase topology
 - persistence / database
 - API layer
