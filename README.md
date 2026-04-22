@@ -1,31 +1,46 @@
 # Agent Runtime
 
-Experiment-oriented agent runtime repository with typed models, explicit version boundaries, and a locked Phase 2 execution protocol for `Action` / `ActionRecord`.
+Skeleton-first experiment agent runtime in Python.
 
-## Current Phase Status
-- Phase 0 completed
-- Phase 1 completed
-- Phase 2 completed
+## Purpose
 
-## Implemented So Far
-- Repository baseline and package layout
-- Typed Pydantic models
-- Object inventory and overview-version boundaries
-- `Action` runtime object modeling
-- `ActionRecord` single-attempt execution protocol
-- Protocol helpers for attempt creation, transitions, blocking, resume, completion, failure, abandonment, and finalization
-- Mirror repair from `ActionRecord` truth
-- Late-arrival routing to `LateArrivalRecord`
-- Protocol-level pytest coverage
+This repository defines a layered runtime for experiment-oriented agent work. The implementation is intentionally incremental:
 
-## Not Implemented Yet
-- Scheduler
-- Acceptance / adoption engine
-- Migration engine
+- skeleton objects define the stable experiment decomposition boundary
+- runtime objects bind execution state back to the current overview version
+- execution protocol objects define action-attempt truth through `ActionRecord`
+- scheduling logic resolves the current module, phase, guide, and action without silently guessing
+
+The codebase uses Python, Pydantic, and pytest only.
+
+## Current Implementation Status
+
+Implemented through Phase 3:
+
+- Phase 0 baseline
+- Phase 1 data models and version boundaries
+- Phase 2 `Action` / `ActionRecord` execution protocol
+- Phase 3 scheduling core
+
+What is currently implemented:
+
+- repository and packaging baseline
+- typed Pydantic models across skeleton, runtime, execution-control, and inventory layers
+- overview-version boundary validation through `ObjectInventory`
+- Phase 2 action-attempt protocol helpers, mirror repair, and late-arrival routing boundary
+- Phase 3 scheduling functions for module validation, phase validation, guide resolution, and action resolution
+- explicit scheduler outcomes for continue, retry, abandon-and-switch, waiting pause, revise-guide, and escalate paths
+- pytest coverage for models, execution protocol, and scheduler behavior
+
+## What Is Not Implemented Yet
+
+- acceptance / adoption engine
+- migration engine
+- non-linear phase topology
 - UI / rendering
-- Persistence / database
+- persistence / database
 - API layer
-- Multi-agent workflows
+- multi-agent workflows
 
 ## Setup
 
@@ -35,67 +50,54 @@ Create and activate a Python 3.11+ virtual environment, then install the project
 python -m pip install -e .[dev]
 ```
 
-## Tests
-
-Run the repository baseline check:
-
-```bash
-scripts/check.sh
-```
-
-Run the full test suite directly:
-
-```bash
-pytest -q
-```
-
-Run focused execution tests:
-
-```bash
-pytest -q tests/execution
-```
-
-PowerShell note if you want to call pytest directly without editable install:
+PowerShell note if you want to run tests without editable install:
 
 ```powershell
 $env:PYTHONPATH="src"
 pytest -q
 ```
 
+## Tests
+
+Run all tests:
+
+```bash
+pytest -q
+```
+
+Run the Phase 3 scheduler tests:
+
+```bash
+pytest tests/scheduling/test_phase3_scheduler.py -q
+```
+
+Optional repo smoke/check script:
+
+```bash
+scripts/check.sh
+```
+
 ## Repository Layout
 
-```text
-.
-├── AGENTS.md
-├── README.md
-├── docs/
-│   └── architecture/
-│       ├── phase-0-baseline.md
-│       ├── phase-1-model-baseline.md
-│       └── phase-2-execution-protocol.md
-├── pyproject.toml
-├── pytest.ini
-├── scripts/
-│   └── check.sh
-├── src/
-│   └── agent_runtime/
-│       ├── acceptance/
-│       ├── common/
-│       ├── execution/
-│       ├── migration/
-│       ├── models/
-│       └── scheduling/
-└── tests/
-    ├── execution/
-    ├── test_models.py
-    └── test_smoke.py
-```
+- `src/agent_runtime/models`
+  Runtime, skeleton, execution-control, archive, and aggregate inventory models.
+- `src/agent_runtime/execution`
+  Phase 2 execution protocol helpers, validators, mirror sync, and late-arrival routing.
+- `src/agent_runtime/scheduling`
+  Phase 3 scheduling core for module, phase, guide, and action resolution.
+- `src/agent_runtime/acceptance`
+  Reserved package boundary for later acceptance/adoption work.
+- `src/agent_runtime/migration`
+  Reserved package boundary for later migration work.
+- `docs`
+  Architecture and phase baseline documentation.
 
 ## Current Boundaries
 
-- `ActionRecord` is the execution truth source.
-- `Action` runtime status fields are mirror-only cache fields.
-- Retry truth comes from valid finalized `ActionRecord` aggregation.
-- Waiting resume continues the same attempt for supported waiting states.
-- Finalized business-state mutation is rejected.
-- Scheduler, acceptance, migration, persistence, API, and UI remain outside the current repository scope.
+- `ExperimentOverview` is initialization skeleton, not runtime truth.
+- `Module` and `Phase` are runtime objects bound to the current overview version.
+- `ExecutionGuide` owns current-round execution control inside one phase.
+- `Action` comes from the current valid guide.
+- `ActionRecord` remains the execution truth source.
+- scheduler resolution follows `module -> phase -> guide -> action`.
+- acceptance, migration, persistence, API, UI, and non-linear topology are still out of scope.

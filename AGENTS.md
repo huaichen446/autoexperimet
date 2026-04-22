@@ -39,3 +39,79 @@
 - Persistence layer
 - API layer
 - Multi-agent workflows
+
+
+## Phase 3 goal
+Implement the runtime scheduling core only.
+
+## In scope for Phase 3
+- current module validation and selection
+- current phase validation and selection
+- current guide resolution
+- current action resolution
+- fixed result branching for:
+  - continue_current_action
+  - retry_current_action
+  - abandon_current_action_and_switch
+  - no_executable_action_pause
+  - no_executable_action_revise_guide
+  - no_executable_action_escalate
+- waiting / revise / escalate routing
+- minimal support code required to unblock scheduler tests if a small Phase 2 gap remains
+
+## Out of scope for Phase 3
+- full execution engine redesign
+- acceptance engine
+- adoption engine
+- migration engine
+- UI / rendering
+- persistence/database
+- API layer
+- multi-agent workflows
+- non-linear phase topology
+
+## Hard constraints
+1. Keep the three scheduling layers strictly separated:
+   - module rules may not depend on action state
+   - phase rules may not directly use action executability
+   - action rules may not rewrite module/phase selection logic
+2. Scheduler order must remain:
+   - current module validation
+   - current phase validation
+   - current guide validation
+   - current action resolution
+3. Default model is:
+   - single agent
+   - single experiment
+   - linear phase progression
+4. If the current state cannot uniquely determine the next execution point, return an explicit scheduler result.
+5. Do not silently guess a module, phase, or action.
+6. Keep ActionRecord as the source of truth for action execution state.
+7. Only fill Phase 2 gaps if they are the minimum required to make scheduler logic and tests executable.
+8. Do not introduce acceptance or migration logic in this phase.
+
+## Scheduler result vocabulary
+Use explicit scheduler results only. Do not invent alternative wording.
+At minimum support:
+- continue_current_action
+- retry_current_action
+- abandon_current_action_and_switch
+- pause_wait_external_tool_result
+- pause_wait_human_input
+- pause_wait_external_resource
+- revise_guide_keep_phase
+- escalate_to_overview_revision
+- no_executable_action_pause
+- no_executable_action_revise_guide
+- no_executable_action_escalate
+
+## Conflict priority
+Use the fixed priority:
+direct escalation > revise guide > pause waiting > keep current selection > switch selection
+
+## Definition of done for Phase 3
+- scheduler functions exist
+- module/phase/guide/action resolution is testable
+- explicit non-executable branches are returned instead of implicit fallthrough
+- waiting / revise / escalate branches are covered by pytest
+- no acceptance engine or migration engine is introduced
