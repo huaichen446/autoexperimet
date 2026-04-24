@@ -1,135 +1,179 @@
 # Agent Runtime
 
-Skeleton-first experiment agent runtime in Python.
+Experiment-oriented, skeleton-first agent runtime in Python.
 
-## Purpose
+This repository defines typed protocol and runtime infrastructure for decomposing an experiment into overview, module, phase, guide, action, execution-record, acceptance, migration, and runtime-loop layers. It is an engineering baseline, not a product platform: there is no UI, API server, database layer, or multi-agent workflow framework here.
 
-This repository defines a layered runtime for experiment-oriented agent work. The implementation is intentionally incremental:
+The codebase uses Python, Pydantic, and pytest.
 
-- skeleton objects define the stable experiment decomposition boundary
-- runtime objects bind execution state back to the current overview version
-- execution protocol objects define action-attempt truth through `ActionRecord`
-- scheduling logic resolves the current module, phase, guide, and action without silently guessing
-- acceptance logic evaluates deterministic completion gates and adoption/promotion boundaries without rewriting execution truth
+## Current Status
 
-The codebase uses Python, Pydantic, and pytest only.
+Implemented through Phase 6:
 
-## Current Implementation Status
+- Phase 0: repository and collaboration baseline
+- Phase 1: object inventory and version boundaries
+- Phase 2: `Action` / `ActionRecord` execution protocol
+- Phase 3: scheduling core
+- Phase 4: acceptance and promotion mechanism
+- Phase 5: skeleton rollback and version migration protocol
+- Phase 6: overall runtime orchestration loop
 
-Implemented through Phase 5:
+The current default runtime model remains:
 
-- Phase 0 baseline
-- Phase 1 data models and version boundaries
-- Phase 2 `Action` / `ActionRecord` execution protocol
-- Phase 3 scheduling core
-- Phase 4 acceptance and promotion layer
-- Phase 5 migration and resume routing layer
+- single agent
+- single experiment
+- linear phase progression
 
-What is currently implemented:
+## Implemented Phases
 
-- repository and packaging baseline
-- typed Pydantic models across skeleton, runtime, execution-control, and inventory layers
-- overview-version boundary validation through `ObjectInventory`
-- Phase 2 action-attempt protocol helpers, mirror repair, and late-arrival routing boundary
-- Phase 3 scheduling functions for module validation, phase validation, guide resolution, and action resolution
-- explicit scheduler outcomes for continue, retry, abandon-and-switch, waiting pause, revise-guide, and escalate paths
-- Phase 4 acceptance schemas for `DecisionItem`, `DoneCheck`, and `AdoptedDesignItem`
-- phase, module, and experiment gate evaluators
-- adoption / promotion validation for accepted design items
-- Phase 5 migration planning, freeze-before-mapping, mapping-class handling, resume routing, and historical record relinking
-- pytest coverage for models, execution protocol, scheduler behavior, acceptance behavior, and migration behavior
+### Phase 0
 
-## Phase Summary
+Established the repository/package baseline, smoke-testable import surface, basic docs, and contributor check-script convention.
 
-- Phase 0: repository baseline, package structure, smoke tests, and collaboration/check-script setup
-- Phase 1: Pydantic model baseline, inventory graph validation, and overview-version boundaries
-- Phase 2: execution protocol truth model centered on `ActionRecord`, retry aggregation, immutability, and waiting-resume ownership
-- Phase 3: deterministic scheduling core for module, phase, guide, and action resolution
-- Phase 4: acceptance and promotion layer with decision closure, done-check evaluation, gate routing, and adopted-result promotion rules
-- Phase 5: overview-version migration baseline with freeze-before-mapping, structural mapping handling, resume-point resolution, and explicit migration routing
+### Phase 1
 
-## What Is Not Implemented Yet
+Added Pydantic models for skeleton, runtime, execution-control, adoption, and inventory objects. `ObjectInventory` validates graph bindings and overview-version boundaries across the current object set.
 
-- non-linear phase topology
-- UI / rendering
-- persistence / database
-- API layer
-- multi-agent workflows
+### Phase 2
+
+Implemented the `Action` / `ActionRecord` execution protocol. `ActionRecord` is the source of truth for single-attempt execution state, retry aggregation, finalized immutability, waiting resume, and late-arrival routing boundaries.
+
+### Phase 3
+
+Implemented deterministic scheduling for current module, phase, guide, and action resolution. Scheduler outcomes are explicit and include continue, retry, abandon-and-switch, waiting pause, revise-guide, and skeleton-escalation routes.
+
+### Phase 4
+
+Implemented structured acceptance and promotion helpers. `DecisionItem`, `DoneCheck`, and gate evaluators handle phase/module/experiment completion, while adoption validation promotes only evidence-backed accepted results.
+
+### Phase 5
+
+Implemented overview-version migration protocol. Migration freezes old active guides/attempts, handles structural mapping classes, preserves historical `ActionRecord` business truth, and resolves a unique resume module/phase or returns an explicit pause/escalate result.
+
+### Phase 6
+
+Implemented the top-level runtime orchestration loop. Runtime state coordinates overview validity, scheduler resolution, action execution/writeback entrypoint, acceptance/promotion entrypoint, and overview revision + migration re-entry without redesigning the lower layers.
+
+## Repository Layout
+
+- `src/agent_runtime/models`
+  Pydantic models for skeleton objects, runtime objects, execution-control objects, adoption/archive objects, and aggregate inventory validation.
+
+- `src/agent_runtime/execution`
+  Phase 2 execution protocol helpers, validators, mirror sync, and late-arrival routing boundary.
+
+- `src/agent_runtime/scheduling`
+  Phase 3 scheduling core for module validation, phase validation, guide resolution, and action resolution.
+
+- `src/agent_runtime/acceptance`
+  Phase 4 acceptance and promotion helpers, including gate evaluators, routing helpers, and adopted-result validation.
+
+- `src/agent_runtime/migration`
+  Phase 5 migration helpers for overview-version transitions, mapping interpretation, freeze-before-mapping, resume routing, and historical-record relinking.
+
+- `src/agent_runtime/runtime`
+  Phase 6 runtime state, runtime results, orchestration handlers, overview validity helpers, and top-level runtime loop entrypoints.
+
+- `docs/architecture`
+  Architecture overview and phase-specific baseline documentation.
+
+- `tests`
+  Pytest coverage for models, execution protocol, scheduling, acceptance, migration, runtime orchestration, and smoke tests.
+
+- `scripts`
+  Repository validation script.
 
 ## Setup
 
-Create and activate a Python 3.11+ virtual environment, then install the project with dev dependencies:
+Use Python 3.11 or newer.
+
+Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+On POSIX shells:
+
+```bash
+. .venv/bin/activate
+```
+
+On PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Install the project with development dependencies:
 
 ```bash
 python -m pip install -e .[dev]
 ```
 
-PowerShell note if you want to run tests without editable install:
+If you do not install the package editable, set `PYTHONPATH=src` before running tests.
+
+PowerShell example:
 
 ```powershell
 $env:PYTHONPATH="src"
-pytest -q
+python -m pytest
 ```
 
-## Tests
+## Running Tests And Checks
 
-Run all tests:
+Run the full test suite:
 
 ```bash
-pytest -q
+python -m pytest
 ```
 
-Run only the Phase 4 acceptance tests:
+Run the Phase 6 runtime tests:
 
 ```bash
-pytest tests/acceptance/test_phase4_acceptance.py -q
+python -m pytest tests/runtime/test_phase6_runtime.py
 ```
 
-Run the Phase 3 scheduler tests:
+Run useful phase-specific slices:
 
 ```bash
-pytest tests/scheduling/test_phase3_scheduler.py -q
+python -m pytest tests/scheduling/test_phase3_scheduler.py
+python -m pytest tests/acceptance/test_phase4_acceptance.py
+python -m pytest tests/migration/test_phase5_migration.py
 ```
 
-Run the Phase 5 migration tests:
+Run the repository validation script on a POSIX-compatible shell:
 
 ```bash
-pytest tests/migration/test_phase5_migration.py -q
+sh scripts/check.sh
 ```
 
-Optional repo smoke/check script:
+The check script currently runs the full pytest suite and the Phase 6 runtime test slice with `PYTHONPATH=src`.
 
-```bash
-scripts/check.sh
-```
+## Architecture Notes
 
-## Repository Layout
+The repository is organized as layered protocols and thin runtime orchestration:
 
-- `src/agent_runtime/models`
-  Runtime, skeleton, execution-control, archive, and aggregate inventory models.
-- `src/agent_runtime/execution`
-  Phase 2 execution protocol helpers, validators, mirror sync, and late-arrival routing.
-- `src/agent_runtime/scheduling`
-  Phase 3 scheduling core for module, phase, guide, and action resolution.
-- `src/agent_runtime/acceptance`
-  Phase 4 acceptance and promotion helpers, including gate evaluators, routing helpers, and adoption validation.
-- `src/agent_runtime/migration`
-  Phase 5 migration helpers for overview-version transitions, mapping interpretation, freeze-before-mapping, and resume routing.
-- `docs`
-  Architecture and phase baseline documentation.
-- `tests/acceptance`
-  Phase 4 acceptance, routing, and promotion coverage.
-- `tests/migration`
-  Phase 5 migration coverage for mapping classes, resume routing, and historical-record safety.
-
-## Current Boundaries
-
-- `ExperimentOverview` is initialization skeleton, not runtime truth.
-- `Module` and `Phase` are runtime objects bound to the current overview version.
+- `ExperimentOverview` is skeleton initialization structure, not runtime progress truth.
+- `Module` and `Phase` are runtime objects bound to one overview version.
 - `ExecutionGuide` owns current-round execution control inside one phase.
 - `Action` comes from the current valid guide.
 - `ActionRecord` remains the execution truth source.
-- scheduler resolution follows `module -> phase -> guide -> action`.
-- acceptance uses explicit phase/module/experiment gates and does not rewrite scheduler or execution semantics.
-- migration is implemented as a separate overview-transition layer and does not rewrite execution business truth.
-- persistence, API, UI, and non-linear topology are still out of scope.
+- scheduling resolves `module -> phase -> guide -> action` without silently guessing.
+- acceptance evaluates explicit gates and promotion rules without rewriting scheduler or execution truth.
+- migration handles overview-version transitions without rewriting historical execution business truth.
+- runtime orchestration coordinates existing layers and clears stale guide/action pointers after migration re-entry.
+
+For deeper design detail, start with [docs/architecture/overview.md](docs/architecture/overview.md) and [docs/architecture/phase-6-runtime-loop.md](docs/architecture/phase-6-runtime-loop.md).
+
+## Non-Goals
+
+The repository intentionally does not implement:
+
+- UI / rendering
+- persistence or database storage
+- API layer
+- multi-agent workflows
+- product-facing reporting
+- non-linear phase topology
+- generalized workflow/orchestration framework

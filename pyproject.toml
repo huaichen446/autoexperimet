@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agent-runtime"
 version = "0.1.0"
-description = "Skeleton-first experiment agent runtime with Phase 1-5 model, execution, scheduling, acceptance, and migration baselines."
+description = "Skeleton-first experiment agent runtime with Phase 1-6 model, execution, scheduling, acceptance, migration, and runtime-loop baselines."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

@@ -226,3 +226,71 @@ Use explicit migration results only:
 - resume point resolution is deterministic
 - pytest covers success, pause, and escalate migration paths
 - no scheduler redesign or execution redesign is introduced
+
+
+## Phase 6 goal
+Implement the overall runtime execution loop only.
+
+## In scope for Phase 6
+- runtime state object(s) needed for the overall loop
+- top-level runtime loop orchestration
+- overview version validity check entrypoint
+- integration of:
+  - module resolution
+  - phase resolution
+  - guide resolution
+  - action resolution
+  - action execution/writeback entrypoint
+  - acceptance/promotion entrypoint
+  - overview revision + migration entrypoint
+- terminal-state handling:
+  - completed
+  - paused
+  - escalated
+- protocol-focused tests for the end-to-end runtime flow
+
+## Out of scope for Phase 6
+- redesigning any previous phase
+- rewriting scheduler internals
+- rewriting execution protocol internals
+- rewriting acceptance/adoption logic
+- rewriting migration internals
+- UI / rendering
+- persistence/database
+- API layer
+- multi-agent workflows
+- product-facing reporting
+
+## Hard constraints
+1. Phase 6 must orchestrate existing layers; it must not redesign them.
+2. The runtime loop must be state-driven and deterministic.
+3. The order of integration must remain explicit:
+   - overview validity
+   - module resolution
+   - phase resolution
+   - guide resolution
+   - action resolution
+   - execution/writeback
+   - acceptance/promotion
+   - terminal-state handling
+4. If skeleton-level escalation occurs, the loop must enter the overview-revision-and-migration subflow.
+5. Old overview/runtime objects must not be silently reused across versions.
+6. After successful migration, the runtime must re-derive:
+   - current_module_id
+   - current_phase_id
+   - current_guide_id (if resolvable)
+   - current_action_id or an explicit no-action branch
+7. The runtime must never silently guess a continuation point.
+8. Terminal runtime states are only:
+   - completed
+   - paused
+   - escalated
+
+## Phase 6 definition of done
+- runtime loop entrypoint exists
+- runtime state object(s) exist
+- the fixed execution order is implemented
+- overview revision + migration is integrated as a fixed subflow
+- terminal-state routing is explicit
+- pytest covers completed / paused / escalated flows and migration re-entry flows
+- no redesign of scheduler, execution, acceptance, or migration internals is introduced

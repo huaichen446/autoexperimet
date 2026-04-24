@@ -2,7 +2,7 @@
 
 ## Current Scope
 
-The repository currently implements the baseline through Phase 5 for a skeleton-first experiment agent runtime.
+The repository currently implements the baseline through Phase 6 for a skeleton-first experiment agent runtime.
 
 Completed phases:
 
@@ -12,6 +12,7 @@ Completed phases:
 - Phase 3: runtime scheduling core
 - Phase 4: acceptance and promotion layer
 - Phase 5: overview-version migration and resume routing
+- Phase 6: top-level runtime loop orchestration
 
 The current default model is:
 
@@ -105,6 +106,31 @@ At a high level:
 - resume-point resolution must derive a unique module and phase or return a typed pause/escalate outcome
 - historical `ActionRecord` business truth remains immutable during relinking
 
+### Runtime Loop Layer
+
+The runtime loop layer orchestrates the completed lower-level protocols without redesigning them.
+
+Implemented Phase 6 objects and helpers:
+
+- `RuntimeState`
+- `run_experiment_runtime(...)`
+- `run_runtime(...)`
+- explicit orchestration handlers for module, phase, guide, action, execution, acceptance, and migration outcomes
+
+The loop order is fixed:
+
+1. terminal check
+2. overview validity
+3. module resolution
+4. phase resolution
+5. guide resolution
+6. action resolution
+7. execution / writeback
+8. acceptance / promotion
+9. terminal re-check
+
+Skeleton-level escalation enters the overview revision + migration boundary. After successful migration, the runtime re-derives continuation pointers from the new overview version and clears stale guide/action pointers.
+
 ## What Each Completed Phase Delivered
 
 ### Phase 0
@@ -158,6 +184,15 @@ At a high level:
 - explicit migration outcomes for auto-resume, pause, and escalate paths
 - historical `ActionRecord` relinking that adds migration context without rewriting business-truth fields
 
+### Phase 6
+
+- runtime state object for current overview/module/phase/guide/action pointers
+- top-level runtime entrypoints
+- fixed orchestration order across overview validity, scheduling, execution, acceptance, and migration
+- explicit terminal routing for `completed`, `paused`, and `escalated`
+- migration re-entry behavior that replaces current-version runtime objects and clears guide/action pointers
+- pytest coverage for loop order, pause/escalation/completion, migration re-entry, guide binding safety, and adopted-result persistence
+
 ## Current Boundaries Between Layers
 
 - skeleton objects define structure and version boundaries only
@@ -167,6 +202,7 @@ At a high level:
 - scheduler logic consumes runtime/execution state but does not rewrite protocol truth
 - acceptance consumes runtime/execution outputs but does not rewrite scheduler or execution truth
 - migration consumes runtime history and overview mappings without rewriting execution business truth
+- runtime orchestration coordinates the existing layers without redesigning their internals
 
 ## Pending Work For Later Phases
 
